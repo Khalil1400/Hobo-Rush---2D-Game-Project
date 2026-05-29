@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c95c1950fed4f0408545e2f37fdbcf8, type: 3}
+  m_Name: HighBat
+  m_EditorClassIdentifier: Assembly-CSharp::ObstacleData
+  label: High Bat
+  prefab: {fileID: 5274500154313831825, guid: a5f48e03c9dab2e429310e68682e75ef, type: 3}
+  yPosition: -0.63
+  spawnYOffset: 0
+  weight: 0.42
+  minGameSpeed: 11.8
+  recoveryGap: 0.62
+  isBird: 1
+  prewarmCount: 3
