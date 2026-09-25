@@ -75,6 +75,14 @@ This project was built in **Unity 6** as an endless runner focused on:
 - Aseel Yassine
 - Rawad Soufan
 
+## Engineering Skills Demonstrated
+
+- Built a reusable object-pooling system to avoid repeated runtime allocation during long play sessions
+- Used ScriptableObjects to separate obstacle and difficulty tuning from gameplay code
+- Coordinated player, spawning, scoring, audio, and UI states across the complete game loop
+- Implemented persistent best-score and settings behavior between sessions
+- Organized a production-style Unity project with focused folders for scripts, data, prefabs, scenes, and showcase assets
+
 ## Development Notes
 
 A major challenge in development was balancing the endless loop so the game becomes harder without becoming unfair. Speed growth, obstacle spacing, bat height, jump timing, slide behavior, and score pacing were tuned together to keep the run readable and playable over time.
