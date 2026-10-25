@@ -1,0 +1,49 @@
+name: Secret checks
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Reject private environment files and hardcoded Django keys
+        shell: python
+        run: |
+          import ast
+          import pathlib
+          import subprocess
+          import sys
+          files = subprocess.check_output(["git", "ls-files", "-z"]).decode().split("\0")
+          failures = []
+          for filename in filter(None, files):
+              path = pathlib.Path(filename)
+              name = path.name.lower()
+              if (name == ".env" or name.startswith(".env.")) and name not in {".env.example", ".env.sample", ".env.template"}:
+                  failures.append(f"Private environment file tracked: {filename}")
+              if path.suffix == ".py":
+                  tree = ast.parse(path.read_text(encoding="utf-8-sig"), filename=filename)
+                  for node in ast.walk(tree):
+                      if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "SECRET_KEY" for t in node.targets):
+                          if isinstance(node.value, ast.Constant) and node.value.value:
+                              failures.append(f"Hardcoded SECRET_KEY: {filename}:{node.lineno}")
+          for failure in failures:
+              print(failure)
+          sys.exit(bool(failures))
+      - name: Scan tracked source with Gitleaks
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/gitleaks.tar.gz"
+          curl --fail --silent --show-error --location --retry 3 https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz --output "$archive"
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $archive" | sha256sum --check
+          tar -xzf "$archive" -C "$RUNNER_TEMP" gitleaks
+          scan_dir=$(mktemp -d)
+          git archive HEAD | tar -x -C "$scan_dir"
+          "$RUNNER_TEMP/gitleaks" dir "$scan_dir" --redact=100 --no-banner --ignore-gitleaks-allow
